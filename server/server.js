@@ -1,6 +1,6 @@
 const express = require('express');
 const server = express();
-const port = proccess.env.port || 8000;
+const port = proccess.env.port || 8080;
 var bodyParser = require('body-parser');
 
 const compression = require("compression");
@@ -24,21 +24,6 @@ const pool = mysql.createPool({
     createDatabaseTable: true,
     multipleStatements: true,
     insecureAuth: true
-});
-
-const forest = require('forest-express-sequelize');
-const Sequelize = require('sequelize');
-
-
-
-
-forest.init({
- envSecret: process.env.FOREST_ENV_SECRET,
- authSecret: process.env.FOREST_AUTH_SECRET,
- objectMapping: Sequelize,
- connections: { default: pool },
-}).then((FAMiddleware) => {
- server.use(FAMiddleware);
 });
 
 const MySQLstore = require('express-mysql-session')(session);
@@ -78,8 +63,6 @@ server.use('/', require('./api'));
 server.set('views', 'sites/');
 server.set('view engine', 'ejs');
 
-require('dotenv').config()
-
 
 const jwt = require('jsonwebtoken')
 
@@ -94,7 +77,7 @@ function authenticateToken(req, res, next) {
   const token = authHeader && authHeader.split(' ')[1]
   if (token == null) return res.sendStatus(401)
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+  jwt.verify(token, process.env.secret, (err, user) => {
     console.log(err)
     if (err) return res.sendStatus(403)
     req.user = user
